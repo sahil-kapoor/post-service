@@ -38,30 +38,44 @@ public class PostServiceImpl implements PostService {
   private RestTemplate restTemplate;
 
   @Override
-  public Post getPost(Integer id){
-        return restTemplate.getForObject(postGetEndpoint,Post.class,id);
+  public ResponseEntity<Post>  getPost(Integer id){
+    Map<String, Integer> uriParams = new HashMap<String, Integer>();
+    uriParams.put("id",id);
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(postGetEndpoint);
+    logger.debug("Request URI {}", builder.buildAndExpand(uriParams).toUri());
+    logger.info("Get Comments for post id {}", id);
+    URI uri= builder.buildAndExpand(uriParams).toUri();
+    ResponseEntity<Post> response=restTemplate.exchange(uri, HttpMethod.GET,null, Post.class);
+    if(response !=null && response.getStatusCode().is2xxSuccessful()) {
+      logger.info("Post fetched for id {} ", id);
+    }
+    return response;
    }
 
   @Override
-  public List<Comment> getCommentsByPostId(Integer postId){
+  public ResponseEntity<List<Comment>> getCommentsByPostId(Integer postId){
     Map<String, Integer> uriParams = new HashMap<String, Integer>();
     uriParams.put("id",postId);
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(getComentByPostIdEndpoint);
     logger.debug("Request URI {}", builder.buildAndExpand(uriParams).toUri());
+    logger.info("Get Comments for post id {}", postId);
     URI uri= builder.buildAndExpand(uriParams).toUri();
     ResponseEntity<List<Comment>> response=restTemplate.exchange(uri, HttpMethod.GET,null, new ParameterizedTypeReference<List<Comment>>() {});
-    return response.getBody();
+    if(response !=null && response.getStatusCode().is2xxSuccessful()) {
+      logger.info("No. of comments fetched post id {} is {}", postId, response.getBody().size());
+    }
+    return response;
   }
 
   @Override
-  public List<Post> getPosts(){
+  public ResponseEntity<List<Post>> getPosts(){
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(postsGetEndpoint);
+    logger.info("Get posts");
     ResponseEntity<List<Post>> response=restTemplate.exchange(builder.build().toUri(), HttpMethod.GET,null, new ParameterizedTypeReference<List<Post>>() {});
-    List<Post> posts=response.getBody();
-    return posts;
+    if(response !=null && response.getStatusCode().is2xxSuccessful()){
+      logger.info("No. of posts id {}", response.getBody().size());
+    }
+    return response;
   }
-
-
-
 
 }

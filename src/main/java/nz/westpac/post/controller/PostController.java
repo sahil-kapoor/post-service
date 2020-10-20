@@ -27,16 +27,25 @@ public class PostController {
 
   @GetMapping("/posts")
   ResponseEntity<List<Post>> getPosts() {
-    return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(postService.getPosts());
+    ResponseEntity<List<Post>> response=postService.getPosts();
+    if(response!=null)
+      return ResponseEntity.status(response.getStatusCode()).contentType(MediaType.APPLICATION_JSON).body(response.getBody());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
   }
 
   @GetMapping("/posts/{id}/comments")
   ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable Integer id) {
-  return ResponseEntity.ok(postService.getCommentsByPostId(id));
+    ResponseEntity<List<Comment>> response=postService.getCommentsByPostId(id);
+    if(response!=null)
+      return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
   }
 
   @GetMapping("/posts/{id}")
   public ResponseEntity<Post> getPostById(@PathVariable Integer id) {
-    return ResponseEntity.ok(postService.getPost(id));
+    ResponseEntity<Post> response=postService.getPost(id);
+    if(response!=null)
+      return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
   }
 }
